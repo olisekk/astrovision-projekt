@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Katalog objektů{% endblock %}
+{% block content %}
+
+<div class="section-header">
+    <h2 class="section-title">🌌 Katalog <span>objektů</span></h2>
+    <span class="badge badge-blue">{{ objekty|length }} výsledků</span>
+</div>
+
+<form method="get" class="filters">
+    <div class="filter-group" style="flex:2;min-width:200px;">
+        <label>🔍 Hledat</label>
+        <input type="text" name="q" value="{{ q }}" placeholder="Název, katalogové číslo…">
+    </div>
+    <div class="filter-group">
+        <label>📂 Typ objektu</label>
+        <select name="typ">
+            <option value="">Všechny typy</option>
+            {% for t in typy %}
+                <option value="{{ t.pk }}" {% if typ_id == t.pk|stringformat:"d" %}selected{% endif %}>
+                    {{ t.ikona }} {{ t.nazev }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="filter-group">
+        <label>✨ Souhvězdí</label>
+        <select name="souhvezdi">
+            <option value="">Všechna</option>
+            {% for s in souhvezdi_list %}
+                <option value="{{ s.pk }}" {% if souhvezdi_id == s.pk|stringformat:"d" %}selected{% endif %}>
+                    {{ s.nazev }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="filter-group">
+        <label>⭐ Obtížnost</label>
+        <select name="obtiznost">
+            <option value="">Jakákoliv</option>
+            {% for val, label in obtiznosti %}
+                <option value="{{ val }}" {% if obtiznost == val|stringformat:"d" %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:flex-end;">
+        <button type="submit" class="btn btn-primary">Filtrovat</button>
+        <a href="{% url 'katalog:objekty_seznam' %}" class="btn btn-outline">Reset</a>
+    </div>
+</form>
+
+{% if objekty %}
+<div class="cards-grid">
+    {% for obj in objekty %}
+    <a href="{% url 'katalog:objekt_detail' obj.pk %}" class="card">
+        {% if obj.foto %}
+            <img class="card-img" src="{{ obj.foto.url }}" alt="{{ obj.nazev }}">
+        {% else %}
+            <div class="card-img-placeholder">{{ obj.typ.ikona }}</div>
+        {% endif %}
+        <div class="card-body">
+            <div class="card-title">
+                {{ obj.nazev }}
+                {% if obj.je_featured %}<span class="badge badge-gold" style="margin-left:.5rem;">⭐ Top</span>{% endif %}
+            </div>
+            {% if obj.katalogove_cislo %}
+                <div class="card-sub">{{ obj.katalogove_cislo }}</div>
+            {% endif %}
+            <div class="card-sub">{{ obj.popis|truncatechars:80 }}</div>
+            {% if obj.vzdalenost_ly %}
+                <div class="card-sub" style="margin-top:auto;">📏 {{ obj.vzdalenost_ly|floatformat:0 }} světelných let</div>
+            {% endif %}
+        </div>
+        <div class="card-footer">
+            <span class="badge badge-blue">{{ obj.typ }}</span>
+            <span class="badge badge-purple">{{ obj.souhvezdi.zkratka }}</span>
+            {% if obj.jasnost %}
+                <span class="badge badge-gold">{{ obj.jasnost }} mag</span>
+            {% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+    <div class="empty-icon">🔭</div>
+    <p>Žádné objekty nenalezeny. Zkuste upravit filtry.</p>
+    <a href="{% url 'katalog:objekty_seznam' %}" class="btn btn-outline" style="margin-top:1rem;">Zobrazit vše</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Úvod{% endblock %}
+{% block content %}
+
+<div class="hero">
+    <div class="stars-bg"></div>
+    <h1>🔭 AstroVision</h1>
+    <p>Osobní katalog astronomických objektů, pozorování a pozorovatelen</p>
+    <div style="display:flex;gap:1rem;justify-content:center;margin-top:1.75rem;position:relative;">
+        <a href="{% url 'katalog:objekty_seznam' %}" class="btn btn-primary">Prozkoumat objekty</a>
+        <a href="{% url 'katalog:pozorovateny_seznam' %}" class="btn btn-outline">Pozorovatelny</a>
+    </div>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-num">{{ celkem_objektu }}</div>
+        <div class="stat-label">🌌 Objektů v katalogu</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-num">{{ celkem_pozorovani }}</div>
+        <div class="stat-label">📡 Zaznamenaných pozorování</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-num">{{ typy|length }}</div>
+        <div class="stat-label">📂 Typů objektů</div>
+    </div>
+</div>
+
+{% if featured %}
+<div class="section-header">
+    <h2 class="section-title">⭐ Doporučené <span>objekty</span></h2>
+    <a href="{% url 'katalog:objekty_seznam' %}" class="btn btn-outline">Zobrazit vše</a>
+</div>
+<div class="cards-grid">
+    {% for obj in featured %}
+    <a href="{% url 'katalog:objekt_detail' obj.pk %}" class="card">
+        {% if obj.foto %}
+            <img class="card-img" src="{{ obj.foto.url }}" alt="{{ obj.nazev }}">
+        {% else %}
+            <div class="card-img-placeholder">{{ obj.typ.ikona }}</div>
+        {% endif %}
+        <div class="card-body">
+            <div class="card-title">{{ obj.nazev }}</div>
+            {% if obj.katalogove_cislo %}
+                <div class="card-sub">{{ obj.katalogove_cislo }}</div>
+            {% endif %}
+            <div class="card-sub">{{ obj.popis|truncatechars:90 }}</div>
+        </div>
+        <div class="card-footer">
+            <span class="badge badge-blue">{{ obj.typ }}</span>
+            <span class="badge badge-purple">{{ obj.souhvezdi.zkratka }}</span>
+            {% if obj.jasnost %}
+                <span class="badge badge-gold">{{ obj.jasnost }} mag</span>
+            {% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if posledni_pozorovani %}
+<div class="section-header" style="margin-top:2.5rem;">
+    <h2 class="section-title">📡 Poslední <span>pozorování</span></h2>
+</div>
+<div class="timeline">
+    {% for p in posledni_pozorovani %}
+    <div class="timeline-item">
+        <div class="timeline-date">{{ p.datum }} — {{ p.objekt.nazev }}
+            {% if p.pozorovatelna %} · {{ p.pozorovatelna.nazev }}{% endif %}
+            &nbsp;
+            <span class="stars">{% for i in "12345" %}{% if forloop.counter <= p.kvalita_oblohy %}★{% else %}☆{% endif %}{% endfor %}</span>
+        </div>
+        {% if p.popis %}<div class="timeline-text">{{ p.popis|truncatechars:120 }}</div>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if typy %}
+<div class="section-header" style="margin-top:2.5rem;">
+    <h2 class="section-title">📂 Typy <span>objektů</span></h2>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:.75rem;">
+    {% for typ in typy %}
+    <a href="{% url 'katalog:objekty_seznam' %}?typ={{ typ.pk }}" class="badge badge-blue" style="font-size:.9rem;padding:.5rem 1rem;">
+        {{ typ.ikona }} {{ typ.nazev }} ({{ typ.pocet }})
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

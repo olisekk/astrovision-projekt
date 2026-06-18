@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Pozorovatelny{% endblock %}
+{% block content %}
+<div class="section-header">
+    <h2 class="section-title">🏔️ <span>Pozorovatelny</span></h2>
+</div>
+{% if pozorovateny %}
+<div class="cards-grid">
+{% for p in pozorovateny %}
+<a href="{% url 'katalog:pozorovatelna_detail' p.pk %}" class="card">
+    <div class="card-img-placeholder" style="height:120px;font-size:3rem;">🏔️</div>
+    <div class="card-body">
+        <div class="card-title">{{ p.nazev }}</div>
+        <div class="card-sub">📍 {{ p.misto }}</div>
+        {% if p.nadmorska_vyska %}<div class="card-sub">⛰️ {{ p.nadmorska_vyska }} m n.m.</div>{% endif %}
+        {% if p.popis %}<div class="card-sub">{{ p.popis|truncatechars:80 }}</div>{% endif %}
+    </div>
+    <div class="card-footer">
+        <span class="badge badge-gold">Bortle {{ p.svetelne_znecisteni }}</span>
+        <span class="badge badge-green">{{ p.pocet }} pozorování</span>
+    </div>
+</a>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty"><div class="empty-icon">🏔️</div><p>Zatím žádné pozorovatelny.</p></div>
+{% endif %}
+{% endblock %}

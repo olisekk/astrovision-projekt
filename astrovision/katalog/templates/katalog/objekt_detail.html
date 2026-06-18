@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}{{ objekt.nazev }}{% endblock %}
+{% block content %}
+
+<div class="breadcrumb">
+    <a href="{% url 'katalog:index' %}">Úvod</a> /
+    <a href="{% url 'katalog:objekty_seznam' %}">Objekty</a> /
+    {{ objekt.nazev }}
+</div>
+
+<div class="detail-hero">
+    {% if objekt.foto %}
+        <img class="detail-hero-img" src="{{ objekt.foto.url }}" alt="{{ objekt.nazev }}">
+    {% else %}
+        <div class="detail-hero-placeholder">{{ objekt.typ.ikona }}</div>
+    {% endif %}
+    <div class="detail-hero-body">
+        <h1>{{ objekt.nazev }}
+            {% if objekt.je_featured %}<span class="badge badge-gold" style="font-size:.8rem;vertical-align:middle;margin-left:.5rem;">⭐ Doporučený</span>{% endif %}
+        </h1>
+        {% if objekt.katalogove_cislo %}
+            <div style="color:var(--text-muted);margin-top:.25rem;">{{ objekt.katalogove_cislo }}</div>
+        {% endif %}
+        <div class="detail-meta">
+            <span class="badge badge-blue">{{ objekt.typ }}</span>
+            <span class="badge badge-purple">{{ objekt.souhvezdi }}</span>
+            {% if objekt.jasnost %}<span class="badge badge-gold">{{ objekt.jasnost }} mag</span>{% endif %}
+            <span class="badge badge-green">{{ objekt.get_obtiznost_pozorovani_display }}</span>
+        </div>
+        <p style="margin-top:1.25rem;color:var(--text-muted);line-height:1.8;">{{ objekt.popis }}</p>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <div>
+        {% if pozorovani %}
+        <div class="info-box">
+            <h3>📡 Záznamy pozorování ({{ pozorovani|length }})</h3>
+            <div class="timeline">
+                {% for p in pozorovani %}
+                <div class="timeline-item">
+                    <div class="timeline-date">
+                        {{ p.datum }}
+                        {% if p.pozorovatelna %} — {{ p.pozorovatelna.nazev }}{% endif %}
+                        &nbsp;
+                        <span class="stars">{% for i in "12345" %}{% if forloop.counter <= p.kvalita_oblohy %}★{% else %}☆{% endif %}{% endfor %}</span>
+                    </div>
+                    {% if p.popis %}<div class="timeline-text">{{ p.popis }}</div>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="info-box">
+            <h3>📡 Záznamy pozorování</h3>
+            <p style="color:var(--text-muted);">Zatím žádná pozorování.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+        <div class="info-box">
+            <h3>📊 Fyzikální data</h3>
+            {% if objekt.vzdalenost_ly %}
+            <div class="info-row">
+                <span class="info-label">Vzdálenost</span>
+                <span class="info-value">{{ objekt.vzdalenost_ly|floatformat:0 }} ly</span>
+            </div>
+            {% endif %}
+            {% if objekt.jasnost %}
+            <div class="info-row">
+                <span class="info-label">Jasnost</span>
+                <span class="info-value">{{ objekt.jasnost }} mag</span>
+            </div>
+            {% endif %}
+            <div class="info-row">
+                <span class="info-label">Typ</span>
+                <span class="info-value">{{ objekt.typ }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Souhvězdí</span>
+                <span class="info-value">{{ objekt.souhvezdi }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Přidáno</span>
+                <span class="info-value">{{ objekt.datum_pridani|date:"d.m.Y" }}</span>
+            </div>
+        </div>
+
+        {% if souvisejici %}
+        <div class="info-box">
+            <h3>🌠 Další v souhvězdí</h3>
+            {% for s in souvisejici %}
+            <a href="{% url 'katalog:objekt_detail' s.pk %}" style="display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
+                <span style="font-size:1.5rem;">{{ s.typ.ikona }}</span>
+                <div>
+                    <div style="font-weight:600;font-size:.9rem;">{{ s.nazev }}</div>
+                    <div style="font-size:.8rem;color:var(--text-muted);">{{ s.typ }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div style="margin-top:1.5rem;">
+    <a href="{% url 'katalog:objekty_seznam' %}" class="btn btn-outline">← Zpět na katalog</a>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}{{ pozorovatelna.nazev }}{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'katalog:index' %}">Úvod</a> /
+    <a href="{% url 'katalog:pozorovateny_seznam' %}">Pozorovatelny</a> /
+    {{ pozorovatelna.nazev }}
+</div>
+
+<div class="detail-hero">
+    <div class="detail-hero-placeholder" style="height:160px;font-size:4rem;">🏔️</div>
+    <div class="detail-hero-body">
+        <h1>{{ pozorovatelna.nazev }}</h1>
+        <div class="detail-meta">
+            <span class="badge badge-gold">Bortle {{ pozorovatelna.svetelne_znecisteni }}</span>
+            {% if pozorovatelna.nadmorska_vyska %}<span class="badge badge-blue">{{ pozorovatelna.nadmorska_vyska }} m n.m.</span>{% endif %}
+        </div>
+        <p style="margin-top:1rem;color:var(--text-muted);">📍 {{ pozorovatelna.misto }}</p>
+        {% if pozorovatelna.popis %}<p style="margin-top:.75rem;color:var(--text-muted);">{{ pozorovatelna.popis }}</p>{% endif %}
+        {% if pozorovatelna.web %}<p style="margin-top:.75rem;"><a href="{{ pozorovatelna.web }}" target="_blank" class="btn btn-outline">🌐 Web</a></p>{% endif %}
+    </div>
+</div>
+
+{% if pozorovani %}
+<div class="info-box">
+    <h3>📡 Pozorování z této lokality</h3>
+    <div class="timeline">
+        {% for p in pozorovani %}
+        <div class="timeline-item">
+            <div class="timeline-date">
+                {{ p.datum }} — <a href="{% url 'katalog:objekt_detail' p.objekt.pk %}" style="color:var(--accent);">{{ p.objekt.nazev }}</a>
+                &nbsp;<span class="stars">{% for i in "12345" %}{% if forloop.counter <= p.kvalita_oblohy %}★{% else %}☆{% endif %}{% endfor %}</span>
+            </div>
+            {% if p.popis %}<div class="timeline-text">{{ p.popis }}</div>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+<div style="margin-top:1.5rem;"><a href="{% url 'katalog:pozorovateny_seznam' %}" class="btn btn-outline">← Zpět</a></div>
+{% endblock %}
