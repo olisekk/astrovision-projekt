@@ -87,4 +87,4 @@ astrovision/
 
 ## 👤 Autor
 
-Martin – ročníkový projekt, 2024/2025
+Oliver Plaček – ročníkový projekt, 2025/2026
